@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "nest-next-food-delivery",
   "private": true,
   "scripts": {
     "build": "turbo build",
