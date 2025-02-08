@@ -51,7 +51,7 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user in the database
+  
     const createdUser = await this.prisma.user.create({
       data: {
         name,
@@ -158,12 +158,49 @@ export class UsersService {
     return await bcrypt.compare(password, hashedPassword)
   }
 
-  async getLogedInUser(req:any){
-    const user = req.user;
-    const accessToken = req.accessToken;
-    const refreshToken = req.refreshToken;
+  async getLoggedInUser(req:any){
+    try {
+      if (!req.user) {
+        return {
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          error: {
+            message: 'کاربر یافت نشد'
+          }
+        };
+      }
 
-    return {user, accessToken, refreshToken}
+      const user = req.user;
+      const accessToken = req.accesstoken || req.accessToken;
+      const refreshToken = req.refreshtoken || req.refreshToken;
+
+      if (!accessToken || !refreshToken) {
+        const tokenSender = new TokenSender(this.configService, this.jwtService);
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = tokenSender.sendToken(user);
+        return {
+          user,
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken
+        };
+      }
+
+      return {
+        user,
+        accessToken,
+        refreshToken
+      };
+    } catch (error) {
+      console.error('GetLoggedInUser Error:', error);
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        error: {
+          message: 'خطا در دریافت اطلاعات کاربر'
+        }
+      };
+    }
   }
 
   async Logout(req:any){

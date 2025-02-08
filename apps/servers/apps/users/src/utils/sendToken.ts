@@ -13,8 +13,10 @@ export class TokenSender {
         const accessToken = this.jwt.sign(
             {
                 id:user.id
-            },{
+            },
+            {
                 secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
+                expiresIn: '15m'
             }
         );
 

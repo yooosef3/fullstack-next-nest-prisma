@@ -13,36 +13,66 @@ export class AuthGuard implements CanActivate {
     ){}
 
     async canActivate(context:ExecutionContext):Promise<boolean>{
-        const gqlContext = GqlExecutionContext.create(context);
-        const {req} = gqlContext.getContext();
+        try {
+            const gqlContext = GqlExecutionContext.create(context);
+            const {req} = gqlContext.getContext();
 
-        const accessToken = req.headers.accessToken as string;
-        const refreshToken = req.headers.refreshToken as string;
+            
+            const accessToken = (
+                req.headers.accesstoken || 
+                req.headers.accessToken
+            ) as string;
+            
+            const refreshToken = (
+                req.headers.refreshtoken || 
+                req.headers.refreshToken
+            ) as string;
 
-        if(!accessToken || !refreshToken){
-            throw new UnauthorizedException('لطفا برای دسترسی یه این بخش وارد شوید');
-        }
-
-        if(accessToken){
-            const decoded = this.jwtService.verify(accessToken,{
-                secret: this.config.get<string>('ACCESS_TOKEN_SECRET')
-            });
-
-            if(!decoded){
-                throw new UnauthorizedException('access token نامعتبر است');
+            if(!accessToken || !refreshToken){
+                throw new UnauthorizedException('لطفا برای دسترسی یه این بخش وارد شوید');
             }
 
-            await this.updateAccessToken(req)
-        }
+            try {
+                const decoded = this.jwtService.verify(accessToken, {
+                    secret: this.config.get<string>('ACCESS_TOKEN_SECRET')
+                });
 
-        return true
+                const user = await this.prisma.user.findUnique({
+                    where: { id: decoded.id }
+                });
+
+                if (!user) {
+                    throw new UnauthorizedException('کاربر یافت نشد');
+                }
+
+                req.user = user;
+                req.accesstoken = accessToken;
+                req.refreshtoken = refreshToken;
+                
+                return true;
+
+            } catch (error) {
+                if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+                    await this.updateAccessToken(req);
+                    return true;
+                }
+                throw error;
+            }
+
+        } catch (error) {
+            console.error('Auth Guard Error:', error);
+            throw error;
+        }
     }
 
-    private async updateAccessToken(req:any):Promise<void>
-    {
+    private async updateAccessToken(req:any):Promise<void>{
         try {
-            const refreshTokenData = req.headers.refreshToken as string;
-            const decoded = this.jwtService.verify(refreshTokenData,{
+            const refreshToken = (
+                req.headers.refreshtoken || 
+                req.headers.refreshToken
+            ) as string;
+
+            const decoded = this.jwtService.verify(refreshToken, {
                 secret: this.config.get<string>('REFRESH_TOKEN_SECRET')
             });
 
@@ -51,37 +81,36 @@ export class AuthGuard implements CanActivate {
             }
 
             const user = await this.prisma.user.findUnique({
-                where:{
-                    id: decoded.id
-                },
+                where: { id: decoded.id }
             });
 
-            // if (!user) {
-            //     throw new UnauthorizedException('User not found');
-            // }
+            if (!user) {
+                throw new UnauthorizedException('کاربر یافت نشد');
+            }
 
-            const accessToken = this.jwtService.sign(
-                {id: user?.id},
+            const newAccessToken = this.jwtService.sign(
+                { id: user.id },
                 {
                     secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
                     expiresIn: '15m'
                 }
-            )
+            );
 
-            const refreshToken = this.jwtService.sign(
-                {id: user?.id},
+            const newRefreshToken = this.jwtService.sign(
+                { id: user.id },
                 {
                     secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
                     expiresIn: '3d'
                 }
-            )
+            );
 
-            req.accessToken = accessToken;
-            req.refreshToken = refreshToken;
-            req.user = user
+            req.user = user;
+            req.accesstoken = newAccessToken;
+            req.refreshtoken = newRefreshToken;
 
         } catch (error) {
-            console.log(error)
+            console.error('Token Refresh Error:', error);
+            throw new UnauthorizedException('لطفا دوباره وارد شوید');
         }
     }
 }
