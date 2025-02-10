@@ -19,5 +19,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@mantine/core": "^7.16.3",
+    "@mantine/hooks": "^7.16.3"
+  }
 }
