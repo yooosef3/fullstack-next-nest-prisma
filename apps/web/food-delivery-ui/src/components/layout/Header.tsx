@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Container, Group, Text, Button, Menu, Avatar, Modal, ActionIcon, Tabs } from '@mantine/core';
 import { IconChevronDown, IconLogout, IconUser, IconPackage, IconBuildingStore } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
+import AuthScreen from '@/screens/auth';
 
 export default function Header() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -95,22 +96,7 @@ export default function Header() {
         centered
         size="md"
       >
-        <Tabs defaultValue="login">
-          <Tabs.List grow>
-            <Tabs.Tab value="login">ورود</Tabs.Tab>
-            <Tabs.Tab value="register">ثبت نام</Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="login" pt="xs">
-            {/* Login form will go here */}
-            <Text>فرم ورود</Text>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="register" pt="xs">
-            {/* Register form will go here */}
-            <Text>فرم ثبت نام</Text>
-          </Tabs.Panel>
-        </Tabs>
+        <AuthScreen setOpen={close} />
       </Modal>
     </header>
   );
