@@ -15,16 +15,16 @@ const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
 
   return (
     <div
-      className="flex items-center justify-center"
+      className="flex items-center justify-centerl"
       id="screen"
       onClick={handleClose}
     >
-      <div className="">
+      <div className="w-full">
         {activeState === "Login" && (
-          <LoginForm />
+          <LoginForm setActiveState={setActiveState}/>
         )}
         {activeState === "Signup" && (
-          <RegisterForm />
+          <RegisterForm setActiveState={setActiveState} />
         )}
       </div>
     </div>
