@@ -19,14 +19,15 @@ export class UserResolver {
       if (!registerDto.name || !registerDto.email || !registerDto.password) {
         throw new BadRequestException('لطفا ورودی ها را کامل کنید');
       }
-  
-      const { activationToken, user } = await this.userService.register(
+    
+      const { activationToken, accessToken, user } = await this.userService.register(
         registerDto,
         context.res,
       );
-  
+    
       return { 
         activation_token: activationToken.token,
+        access_token: accessToken, // Ensure this is included
         user 
       };
     }

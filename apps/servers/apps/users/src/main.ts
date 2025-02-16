@@ -8,6 +8,9 @@ declare const module: any;
 async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(UsersModule);
+    app.enableCors({
+      origin: 'http://localhost:3000',
+    })
     app.useStaticAssets(join(__dirname, '..', 'public'));
     app.setBaseViewsDir(join(__dirname, '..', 'servers/email-templates'))
     app.setViewEngine('ejs')

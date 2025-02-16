@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaGithub } from 'react-icons/fa';
+import { useMutation } from "@apollo/client";
+import { REGISTER_USER } from "@/graphql/actions/register.action";
+import toast from "react-hot-toast";
 const formSchema = z.object({
   email: z.string().email("ایمیل معتبر نیست!"),
   password: z.string().min(8, "رمز عبور حداقل 8 کاراکتر می‌باشد!"),
@@ -12,6 +15,8 @@ const formSchema = z.object({
 type LoginSchema = z.infer<typeof formSchema>;
 
 const LoginForm = ({setActiveState}:any) => {
+
+  const [registerUserMutation, {loading}] = useMutation(REGISTER_USER)
 
   const {
     register,
@@ -27,7 +32,10 @@ const LoginForm = ({setActiveState}:any) => {
       email: data.email,
       password: data.password,
     };
-    console.log(loginData)
+    try {
+      
+    } catch (error) {
+    }
   };
 
   const [showPassword, setShowPassword] = useState(false);

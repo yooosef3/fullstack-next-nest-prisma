@@ -4,16 +4,23 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaEye, FaEyeSlash, FaGithub, FaGoogle } from 'react-icons/fa';
+import { useMutation } from '@apollo/client';
+import { REGISTER_USER } from '@/graphql/actions/register.action';
+import toast from 'react-hot-toast';
 const formSchema = z.object({
   name: z.string().min(2, "نام باید حداقل 2 کاراکتر باشد!"),
   email: z.string().email("ایمیل معتبر نیست!"),
   password: z.string().min(8, "رمز عبور حداقل 8 کاراکتر می‌باشد!"),
-  phone_number: z.string().regex(/^09\d{9}$/, "شماره موبایل معتبر نیست!"),
+  phone_number: z
+    .number()
+    .min(11, "شماره تلفن باید 11 رقمی باشد!!"),
 });
 
 type RegisterSchema = z.infer<typeof formSchema>;
 
 const RegisterForm = ({setActiveState}:any) => {
+  const [registerUserMutation, {loading}] = useMutation(REGISTER_USER)
+
   const {
     register,
     handleSubmit,
@@ -30,7 +37,22 @@ const RegisterForm = ({setActiveState}:any) => {
       password: data.password,
       phone_number: data.phone_number,
     };
-    console.log(registerData);
+    try {
+      const response = await registerUserMutation({
+        variables:{
+          name: registerData.name,
+          email: registerData.email,
+          password: registerData.password,
+          phone_number: registerData.phone_number,
+        }
+      })
+      localStorage.setItem('activation_token', response?.data?.activation_token)
+      console.log(response?.data)
+      toast.success("لطفا ایمیل خود را به منظور فعالسازی حساب خود بررسی کنید!")
+      reset()
+    } catch (error:any) {
+      toast.error(error?.message)
+    }
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -82,8 +104,8 @@ const RegisterForm = ({setActiveState}:any) => {
           </label>
           <input
           dir='ltr'
-            {...register("phone_number")}
-            type="tel"
+            {...register("phone_number" , {valueAsNumber:true})}
+            type="number"
             id="phone_number"
             className="!w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="09123456789"
@@ -126,7 +148,7 @@ const RegisterForm = ({setActiveState}:any) => {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || loading}
           className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? "در حال ثبت نام..." : "ثبت نام"}

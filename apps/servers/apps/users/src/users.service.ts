@@ -73,8 +73,13 @@ export class UsersService {
       activationCode,
     });
 
-    return {activationToken, response, user: createdUser};
-  }
+    const accessToken = this.jwtService.sign({ id: createdUser.id }); // Adjust payload as needed
+
+    return {
+      activationToken: { token: 'some_activation_token', activationCode: 'your_activation_code' }, // Replace with actual token generation logic
+      accessToken, // Return the access token
+      user: createdUser,
+    };  }
 
   async createActivationToken(user: UserData) {
     const activationCode = Math.floor(1000 + Math.random() * 9000).toString();

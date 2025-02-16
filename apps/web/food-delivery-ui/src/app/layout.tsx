@@ -5,6 +5,8 @@ import { MantineProvider as MantineUIProvider } from "./providers/mantine";
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 
+import { Toaster } from 'react-hot-toast';
+
 export const metadata = {
   title: 'Food Delivery',
   description: 'Food Delivery App',
@@ -31,6 +33,7 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </MantineUIProvider>
+        <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
   );
