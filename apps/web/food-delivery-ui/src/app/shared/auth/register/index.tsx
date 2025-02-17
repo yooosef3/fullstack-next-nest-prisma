@@ -46,8 +46,12 @@ const RegisterForm = ({setActiveState}:any) => {
           phone_number: registerData.phone_number,
         }
       })
-      localStorage.setItem('activation_token', response?.data?.activation_token)
-      console.log(response?.data)
+      localStorage.setItem(
+        "activation_token",
+        response?.data?.register?.activation_token
+      );
+      localStorage.setItem('access_token', response?.data?.register?.access_token)
+      console.log(response?.data?.register)
       toast.success("لطفا ایمیل خود را به منظور فعالسازی حساب خود بررسی کنید!")
       reset()
     } catch (error:any) {

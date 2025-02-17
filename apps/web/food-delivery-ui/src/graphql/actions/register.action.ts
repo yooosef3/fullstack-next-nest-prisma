@@ -18,6 +18,7 @@ registerDto:{
 }
 ){
 access_token
+activation_token
 }
 }
 `

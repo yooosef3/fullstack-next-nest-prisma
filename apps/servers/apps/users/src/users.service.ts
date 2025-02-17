@@ -74,9 +74,9 @@ export class UsersService {
     });
 
     const accessToken = this.jwtService.sign({ id: createdUser.id }); // Adjust payload as needed
-
+    console.log(activationToken.token);
     return {
-      activationToken: { token: 'some_activation_token', activationCode: 'your_activation_code' }, // Replace with actual token generation logic
+      activationToken: { token: activationToken.token, activationCode: activationCode }, // Replace with actual token generation logic
       accessToken, // Return the access token
       user: createdUser,
     };  }
