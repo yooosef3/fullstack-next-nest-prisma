@@ -2,10 +2,11 @@
 
 import LoginForm from "@/app/shared/auth/login";
 import RegisterForm from "@/app/shared/auth/register";
+import Verification from "@/app/shared/auth/verification";
 import { useState } from "react";
 
 const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
-  const [activeState, setActiveState] = useState("Login");
+  const [activeState, setActiveState] = useState("Signup");
 
   const handleClose = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target instanceof HTMLDivElement && e.target.id === "screen") {
@@ -25,6 +26,9 @@ const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
         )}
         {activeState === "Signup" && (
           <RegisterForm setActiveState={setActiveState} />
+        )}
+        {activeState === "Verification" && (
+          <Verification setActiveState={setActiveState} />
         )}
       </div>
     </div>

@@ -54,6 +54,7 @@ const RegisterForm = ({setActiveState}:any) => {
       console.log(response?.data?.register)
       toast.success("لطفا ایمیل خود را به منظور فعالسازی حساب خود بررسی کنید!")
       reset()
+      setActiveState("Verification")
     } catch (error:any) {
       toast.error(error?.message)
     }
