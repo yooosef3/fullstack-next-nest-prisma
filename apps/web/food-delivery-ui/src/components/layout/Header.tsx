@@ -4,19 +4,31 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Container, Group, Text, Button, Menu, Avatar, Modal, ActionIcon, Tabs } from '@mantine/core';
 import { IconChevronDown, IconLogout, IconUser, IconPackage, IconBuildingStore } from '@tabler/icons-react';
+import Cookies from "js-cookie";
 import { useDisclosure } from '@mantine/hooks';
 import AuthScreen from '@/screens/auth';
+import useUser from '@/hooks/useUser';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const [opened, { open, close }] = useDisclosure(false);
   const pathname = usePathname();
-  // TODO: Replace with actual auth state
-  const isSignedIn = true;
-  const user = {
-    name: 'کاربر تست',
-    email: 'test@example.com',
-    avatar: null
-  };
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { user, loading } = useUser();
+
+  useEffect(() => {
+    if (!loading) {
+      setIsSignedIn(!!user)
+    }
+  }, [user, loading])
+
+  const logoutHandler = () => {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    toast.success("با موفقیت خارج شدید!");
+    window.location.reload();
+  }
 
   const navLinks = [
     { href: '/', label: 'صفحه اصلی' },
@@ -38,26 +50,24 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-2 text-sm font-medium transition-colors ${
-                  pathname === link.href
+                className={`px-3 py-2 text-sm font-medium transition-colors ${pathname === link.href
                     ? 'text-orange-600'
                     : 'text-gray-700 hover:text-orange-600'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
             ))}
           </Group>
           <Group>
-            {!isSignedIn ? (
+            {isSignedIn ? (
               <Menu shadow="md" width={200} position="bottom-end">
                 <Menu.Target>
                   <Button variant="subtle" c="orange" leftSection={
-                    <Avatar color="orange" radius="xl" size="sm">
-                      {user.name.charAt(0)}
+                    <Avatar color="orange" radius="xl" size="34">
                     </Avatar>
                   }>
-                    {user.name}
+                  <span>{user?.name}</span>
                   </Button>
                 </Menu.Target>
 
@@ -72,10 +82,10 @@ export default function Header() {
                   <Menu.Item leftSection={<IconBuildingStore size={14} />}>
                     درخواست حساب فروشنده
                   </Menu.Item>
-                  
+
                   <Menu.Divider />
-                  
-                  <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
+
+                  <Menu.Item color="red" onClick={logoutHandler} leftSection={<IconLogout size={14} />}>
                     خروج از حساب
                   </Menu.Item>
                 </Menu.Dropdown>
@@ -89,10 +99,10 @@ export default function Header() {
         </Group>
       </Container>
 
-      <Modal 
-        opened={opened} 
-        onClose={close} 
-        title="حساب کاربری" 
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="حساب کاربری"
         centered
         size="md"
       >

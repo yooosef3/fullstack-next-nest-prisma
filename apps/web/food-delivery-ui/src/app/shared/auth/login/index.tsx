@@ -5,8 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaGithub } from 'react-icons/fa';
 import { useMutation } from "@apollo/client";
-import { REGISTER_USER } from "@/graphql/actions/register.action";
 import toast from "react-hot-toast";
+import { LOGIN_USER } from "@/graphql/actions/login.action";
+import Cookies from "js-cookie";
 const formSchema = z.object({
   email: z.string().email("ایمیل معتبر نیست!"),
   password: z.string().min(8, "رمز عبور حداقل 8 کاراکتر می‌باشد!"),
@@ -14,9 +15,9 @@ const formSchema = z.object({
 
 type LoginSchema = z.infer<typeof formSchema>;
 
-const LoginForm = ({setActiveState}:any) => {
+const LoginForm = ({ setActiveState, setOpen }: any) => {
 
-  const [registerUserMutation, {loading}] = useMutation(REGISTER_USER)
+  const [loginUser, { loading }] = useMutation(LOGIN_USER)
 
   const {
     register,
@@ -33,8 +34,21 @@ const LoginForm = ({setActiveState}:any) => {
       password: data.password,
     };
     try {
-      
-    } catch (error) {
+      const response = await loginUser({
+        variables: loginData
+      })
+      if (response.data.Login.user) {
+        toast.success("با موفقیت وارد شدید!");
+        Cookies.set("refresh_token", response.data.Login.refreshToken);
+        Cookies.set("access_token", response.data.Login.accessToken);
+        setOpen();
+        reset();
+        window.location.reload();
+      } else {
+        toast.error(response.data.Login.error.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message)
     }
   };
 
@@ -45,7 +59,7 @@ const LoginForm = ({setActiveState}:any) => {
   };
 
   return (
-       <div className="p-8 space-y-6 bg-white">
+    <div className="p-8 space-y-6 bg-white">
       <h1 className="text-2xl font-bold text-center text-gray-800">ورود</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2 w-full">
@@ -53,7 +67,7 @@ const LoginForm = ({setActiveState}:any) => {
             ایمیل
           </label>
           <input
-          dir="ltr"
+            dir="ltr"
             {...register("email")}
             type="email"
             id="email"
@@ -71,7 +85,7 @@ const LoginForm = ({setActiveState}:any) => {
           </label>
           <div className="relative">
             <input
-            dir="ltr"
+              dir="ltr"
               {...register("password")}
               type={showPassword ? "text" : "password"}
               id="password"
@@ -83,7 +97,7 @@ const LoginForm = ({setActiveState}:any) => {
               onClick={togglePasswordVisibility}
               className="absolute inset-y-0 right-0 flex items-center pr-3"
             >
-                {showPassword ? (
+              {showPassword ? (
                 <FaEyeSlash />
               ) : (
                 <FaEye />
@@ -111,14 +125,14 @@ const LoginForm = ({setActiveState}:any) => {
       <div className="flex flex-col items-center">
         <p className="text-sm">یا با</p>
         <div className="flex space-x-4">
-        <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">
+          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">
             <FaGoogle className="mr-2" />
           </button>
           <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">
             <FaGithub className="mr-2" />
           </button>
         </div>
-        <p className="text-sm mt-4">حساب کاربری ندارید؟ <span onClick={()=> setActiveState('Signup')} className="text-blue-600 cursor-pointer">ثبت نام</span></p>
+        <p className="text-sm mt-4">حساب کاربری ندارید؟ <span onClick={() => setActiveState('Signup')} className="text-blue-600 cursor-pointer">ثبت نام</span></p>
       </div>
     </div>
   );

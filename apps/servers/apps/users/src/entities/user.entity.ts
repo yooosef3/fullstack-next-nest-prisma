@@ -31,10 +31,10 @@ export class User {
     password: string;
 
     @Field(() => Number, { nullable: true })
-    phone_number?: number;
+    phone_number?: number | null;
 
     @Field(() => String, { nullable: true })
-    address?: string;
+    address?: string | null;
 
     @Field(() => Avatars, { nullable: true })
     avatar?: Avatars | null;

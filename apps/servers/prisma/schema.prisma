@@ -28,6 +28,7 @@ model User{
   phone_number Int? @unique
   address String?
   password String
+  isActivated Boolean @default(false)
   avatar Avatars?
   role Role @default(User)
   createdAt DateTime @default(now())

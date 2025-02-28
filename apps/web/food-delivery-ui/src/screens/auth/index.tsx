@@ -22,7 +22,7 @@ const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
     >
       <div className="w-full">
         {activeState === "Login" && (
-          <LoginForm setActiveState={setActiveState}/>
+          <LoginForm setActiveState={setActiveState} setOpen={setOpen}/>
         )}
         {activeState === "Signup" && (
           <RegisterForm setActiveState={setActiveState} />

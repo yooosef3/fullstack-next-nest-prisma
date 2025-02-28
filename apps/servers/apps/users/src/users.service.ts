@@ -98,39 +98,44 @@ export class UsersService {
     return { token, activationCode };
   }
 
-  async activateUser(activationDto: ActivationDto, response: Response){
-    const {activationToken, activationCode} = activationDto
-    const newUser : {user: UserData, activationCode: string} = this.jwtService.verify(activationToken,{
-      secret:this.configService.get<string>('ACTIVATION_SECRET')
-    } as JwtVerifyOptions) as {user: UserData, activationCode: string}
+  async activateUser(activationDto: ActivationDto, response: Response) {
+    const { activationToken, activationCode } = activationDto;
+    
+    // Verify token and activation code
+    const decoded = this.jwtService.verify(activationToken, {
+      secret: this.configService.get<string>('ACTIVATION_SECRET')
+    }) as { user: UserData, activationCode: string };
 
-    if(newUser.activationCode !== activationCode){
-      throw new BadRequestException('کد فعالسازی نامعتبر است')
+    if (decoded.activationCode !== activationCode) {
+      throw new BadRequestException('کد فعالسازی نامعتبر است');
     }
 
-    const {name, email,password,phone_number} = newUser.user
+    const { email } = decoded.user;
 
-    const existUser = await this.prisma.user.findUnique({
-      where:{
-        email
-      }
-    })
+    // Find the existing user
+    const user = await this.prisma.user.findUnique({
+      where: { email }
+    });
 
-    if(existUser){
-      throw new BadRequestException('کاربر با این ایمیل قبلا ثبت نام کرده است')
+    if (!user) {
+      throw new BadRequestException('کاربر یافت نشد');
     }
 
-    const user = await this.prisma.user.create({
-      data:{
-        name,
-        email,
-        password,
-        phone_number
-      }
-    })
+    // Update user's activation status
+    const updatedUser = await this.prisma.user.update({
+      where: { email },
+      data: { isActivated: true }
+    });
 
-    return {user, response}
-  }
+    // Generate tokens
+    const tokenSender = new TokenSender(this.configService, this.jwtService);
+    const tokens = tokenSender.sendToken(updatedUser);
+
+    return {
+      ...tokens,
+      user: updatedUser
+    };
+}
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;

@@ -28,7 +28,13 @@ export class RegisterResponse {
 @ObjectType()
 export class ActivationResponse {
   @Field(() => User)
-  user: User | unknown;
+  user: User;
+
+  @Field(() => String)
+  accessToken: string;
+
+  @Field(() => String)
+  refreshToken: string;
 
   @Field(() => ErrorType, { nullable: true })
   error?: ErrorType;
