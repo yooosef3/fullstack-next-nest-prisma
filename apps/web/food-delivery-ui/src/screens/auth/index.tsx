@@ -1,5 +1,6 @@
 "use client"
 
+import ForgotPassword from "@/app/shared/auth/forgot-password";
 import LoginForm from "@/app/shared/auth/login";
 import RegisterForm from "@/app/shared/auth/register";
 import Verification from "@/app/shared/auth/verification";
@@ -29,6 +30,9 @@ const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
         )}
         {activeState === "Verification" && (
           <Verification setActiveState={setActiveState} />
+        )}
+        {activeState === "ForgotPassword" && (
+          <ForgotPassword setActiveState={setActiveState} />
         )}
       </div>
     </div>

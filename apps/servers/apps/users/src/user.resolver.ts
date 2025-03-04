@@ -1,7 +1,7 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UsersService } from "./users.service";
-import { ActivationResponse, LoginResponse, LogOutResponse, RegisterResponse } from "./types/user.types";
-import { ActivationDto, RegisterDto } from "./dto/user.dto";
+import { ActivationResponse, ForgotPasswordResponse, LoginResponse, LogOutResponse, RegisterResponse } from "./types/user.types";
+import { ActivationDto, ForgotPasswordDto, RegisterDto } from "./dto/user.dto";
 import { BadRequestException, UseGuards } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { Response } from "express";
@@ -46,6 +46,13 @@ export class UserResolver {
       @Args('password') password: string,
     ): Promise<LoginResponse> {
       return await this.userService.login({ email, password });
+    }
+
+    @Query(() => ForgotPasswordResponse)
+    async ForgotPassword(
+      @Args('forgotPasswordDto') forgotPasswordDto: ForgotPasswordDto,
+    ): Promise<ForgotPasswordResponse> {
+      return await this.userService.forgotPassword(forgotPasswordDto);
     }
 
     @Query(()=> LoginResponse)

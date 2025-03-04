@@ -45,3 +45,11 @@ export class LoginDto {
     @IsNotEmpty({ message: "وارد کردن رمز عبور ضروری است" })
     password: string;
 }
+
+@InputType()
+export class ForgotPasswordDto {
+    @Field()
+    @IsNotEmpty({ message: "وارد کردن ایمیل ضروری است" })
+    @IsEmail({}, { message: "ایمیل وارد شده باید معتبر باشد" })
+    email: string;
+}

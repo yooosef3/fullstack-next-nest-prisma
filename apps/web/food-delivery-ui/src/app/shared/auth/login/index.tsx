@@ -110,7 +110,7 @@ const LoginForm = ({ setActiveState, setOpen }: any) => {
         </div>
 
         <div className="flex justify-between">
-          <a href="#" className="text-sm text-blue-600 hover:underline">فراموشی رمز عبور؟</a>
+          <p onClick={() => setActiveState('ForgotPassword')} className="text-sm text-blue-600 hover:underline">فراموشی رمز عبور؟</p>
         </div>
 
         <button

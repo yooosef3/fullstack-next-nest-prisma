@@ -4,10 +4,11 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 
-import { ActivationDto, LoginDto, RegisterDto } from './dto/user.dto';
+import { ActivationDto, ForgotPasswordDto, LoginDto, RegisterDto } from './dto/user.dto';
 import { PrismaService } from '../../../prisma/Prisma.service';
 import { EmailService } from './email/email.service';
 import { TokenSender } from './utils/sendToken';
+import { User } from '@prisma/client';
 
 interface UserData {
   name: string;
@@ -24,7 +25,7 @@ export class UsersService {
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto, response: Response) {
     const { name, email, password, phone_number } = registerDto;
@@ -51,7 +52,7 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-  
+
     const createdUser = await this.prisma.user.create({
       data: {
         name,
@@ -67,8 +68,8 @@ export class UsersService {
 
     await this.emailService.sendMail({
       email,
-      subject:'حساب خود را فعال کنید',
-      template:'./activation-mail',
+      subject: 'حساب خود را فعال کنید',
+      template: './activation-mail',
       name,
       activationCode,
     });
@@ -79,7 +80,8 @@ export class UsersService {
       activationToken: { token: activationToken.token, activationCode: activationCode }, // Replace with actual token generation logic
       accessToken, // Return the access token
       user: createdUser,
-    };  }
+    };
+  }
 
   async createActivationToken(user: UserData) {
     const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -100,7 +102,7 @@ export class UsersService {
 
   async activateUser(activationDto: ActivationDto, response: Response) {
     const { activationToken, activationCode } = activationDto;
-    
+
     // Verify token and activation code
     const decoded = this.jwtService.verify(activationToken, {
       secret: this.configService.get<string>('ACTIVATION_SECRET')
@@ -135,40 +137,84 @@ export class UsersService {
       ...tokens,
       user: updatedUser
     };
-}
+  }
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.prisma.user.findUnique({
-      where:{
+      where: {
         email
       }
     });
 
-    if(user && (await this.comparePassword(password, user.password))){
+    if (user && (await this.comparePassword(password, user.password))) {
       const tokenSender = new TokenSender(this.configService, this.jwtService);
       return tokenSender.sendToken(user)
-    }else{
+    } else {
       return {
-        user:null,
-        accessToken:null,
-        refreshToken:null,
-        error:{
-          message:'نام کاربری یا رمز عبور اشتباه است'
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        error: {
+          message: 'نام کاربری یا رمز عبور اشتباه است'
         }
       }
     }
 
   }
 
+
+  async generateForgotPasswordLink(user: User) {
+    const forgotPasswordToken = this.jwtService.sign(
+      {
+        user,
+      },
+      {
+        secret: this.configService.get<string>('FORGOT_PASSWORD_SECRET'),
+        expiresIn: '5m',
+      },
+    );
+
+    return forgotPasswordToken
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email
+      }
+    })
+
+    if (!user) {
+      throw new BadRequestException('کاربری با این ایمیل یافت نشد!')
+    }
+
+    const forgotPasswordToken = await this.generateForgotPasswordLink(user);
+    const resetPasswordUrl = this.configService.get<string>("CLIENT_SIDE_URI") + `/reset-password?verify=${forgotPasswordToken}`
+
+    await this.emailService.sendMail({
+      email,
+      subject: 'تغییر رمز عبور',
+      template: './forgot-password',
+      name: user.name,
+      activationCode: resetPasswordUrl
+    })
+
+    console.log(forgotPasswordToken)
+    return { message: "درخواست شما برای تغییر رمز موفقیت آمیز بود!" }
+
+  }
+
   async comparePassword(
     password: string,
     hashedPassword: string
-  ):Promise<boolean>{
+  ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword)
   }
 
-  async getLoggedInUser(req:any){
+  async getLoggedInUser(req: any) {
     try {
       if (!req.user) {
         return {
@@ -213,11 +259,11 @@ export class UsersService {
     }
   }
 
-  async Logout(req:any){
+  async Logout(req: any) {
     req.user = null;
     req.accessToken = null;
     req.refreshToken = null;
-    return {message:'با موفقیت خروج شدید'}
+    return { message: 'با موفقیت خروج شدید' }
   }
 
   async getUsers() {
