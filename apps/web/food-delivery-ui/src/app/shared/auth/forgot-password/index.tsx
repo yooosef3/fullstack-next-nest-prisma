@@ -6,6 +6,8 @@ import { useMutation } from "@apollo/client";
 import toast from "react-hot-toast";
 import { LOGIN_USER } from "@/graphql/actions/login.action";
 import Cookies from "js-cookie";
+import { FORGOT_PASSWORD } from "@/graphql/actions/forgot-password.action";
+import { em } from "@mantine/core";
 const formSchema = z.object({
   email: z.string().email("ایمیل معتبر نیست!"),
 });
@@ -14,7 +16,7 @@ type ForgotPasswordSchema = z.infer<typeof formSchema>;
 
 const ForgotPassword = ({ setActiveState, setOpen }: any) => {
 
-  const [loginUser, { loading }] = useMutation(LOGIN_USER)
+  const [forgotPassword, { loading }] = useMutation(FORGOT_PASSWORD)
 
   const {
     register,
@@ -26,11 +28,14 @@ const ForgotPassword = ({ setActiveState, setOpen }: any) => {
   });
 
   const onSubmit = async (data: ForgotPasswordSchema) => {
-    const forgotPasswordData = {
-      email: data.email,
-    };
     try {
-      
+      const response = await forgotPassword({
+        variables: {
+          email: data.email,
+        },
+      });
+      toast.success('لطفا ایمیل خود را برای تغییر رمز بررسی کنید!');
+      reset();
     } catch (error: any) {
       toast.error(error.message)
     }

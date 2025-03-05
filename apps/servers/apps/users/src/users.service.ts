@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 
-import { ActivationDto, ForgotPasswordDto, LoginDto, RegisterDto } from './dto/user.dto';
+import { ActivationDto, ForgotPasswordDto, LoginDto, RegisterDto, ResetPasswordDto } from './dto/user.dto';
 import { PrismaService } from '../../../prisma/Prisma.service';
 import { EmailService } from './email/email.service';
 import { TokenSender } from './utils/sendToken';
@@ -180,32 +180,56 @@ export class UsersService {
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
-
     const user = await this.prisma.user.findUnique({
       where: {
-        email
-      }
-    })
+        email,
+      },
+    });
 
     if (!user) {
-      throw new BadRequestException('کاربری با این ایمیل یافت نشد!')
+      throw new BadRequestException('User not found with this email!');
     }
-
     const forgotPasswordToken = await this.generateForgotPasswordLink(user);
-    const resetPasswordUrl = this.configService.get<string>("CLIENT_SIDE_URI") + `/reset-password?verify=${forgotPasswordToken}`
+
+    const resetPasswordUrl =
+      this.configService.get<string>('CLIENT_SIDE_URI') +
+      `/reset-password?verify=${forgotPasswordToken}`;
 
     await this.emailService.sendMail({
       email,
-      subject: 'تغییر رمز عبور',
+      subject: 'Reset your Password!',
       template: './forgot-password',
       name: user.name,
-      activationCode: resetPasswordUrl
+      activationCode: resetPasswordUrl,
+    });
+
+    return { message: `Your forgot password request succesful!` };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto){
+    const {password, activationToken} = resetPasswordDto;
+
+    const decoded = await this.jwtService.decode(activationToken);
+
+    if(!decoded || decoded?.exp  * 1000 < Date.now()){
+      throw new BadRequestException("توکن موجود تیست!")
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await this.prisma.user.update({
+      where:{
+        id: decoded.user.id
+      },
+      data:{
+        password:hashedPassword
+      }
     })
 
-    console.log(forgotPasswordToken)
-    return { message: "درخواست شما برای تغییر رمز موفقیت آمیز بود!" }
-
+    return {user}
   }
+
+ 
 
   async comparePassword(
     password: string,

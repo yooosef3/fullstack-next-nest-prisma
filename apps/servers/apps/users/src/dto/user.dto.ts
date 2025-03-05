@@ -53,3 +53,15 @@ export class ForgotPasswordDto {
     @IsEmail({}, { message: "ایمیل وارد شده باید معتبر باشد" })
     email: string;
 }
+
+@InputType()
+export class ResetPasswordDto {
+    @Field()
+    @IsNotEmpty({ message: 'وارد کردن رمز عبور ضروری است!' })
+    @MinLength(8, { message: "نام کاربری باید رشته باشد" })
+    password: string;
+
+    @Field()
+    @IsNotEmpty({ message: 'توکن ضروری است.' })
+    activationToken: string;
+}
