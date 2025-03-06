@@ -7,7 +7,7 @@ function page({searchParams}: {searchParams:
     }
 }) {
 const activationToken = searchParams['verify'] ?? ""
-    console.log(activationToken)
+    
   return (
     <div>
         <ResetPassword activationToken={activationToken} />

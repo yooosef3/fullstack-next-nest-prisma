@@ -1,6 +1,9 @@
+import Hero from "@/components/home/hero";
 
 export default function HomeScreen() {
   return (
-    <div>HomeScreen</div>
+    <div>
+      <Hero />
+    </div>
   )
 }

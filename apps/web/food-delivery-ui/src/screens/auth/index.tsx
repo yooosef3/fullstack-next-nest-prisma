@@ -17,7 +17,7 @@ const AuthScreen = ({ setOpen }: { setOpen: (e: boolean) => void }) => {
 
   return (
     <div
-      className="flex items-center justify-centerl"
+      className="flex items-center justify-center"
       id="screen"
       onClick={handleClose}
     >
