@@ -27,7 +27,7 @@ export class UserResolver {
     
       return { 
         activation_token: activationToken.token,
-        access_token: accessToken, // Ensure this is included
+        access_token: accessToken,
         user 
       };
     }

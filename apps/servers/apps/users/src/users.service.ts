@@ -74,11 +74,11 @@ export class UsersService {
       activationCode,
     });
 
-    const accessToken = this.jwtService.sign({ id: createdUser.id }); // Adjust payload as needed
-    console.log(activationToken.token);
+    const accessToken = this.jwtService.sign({ id: createdUser.id }); 
+    
     return {
-      activationToken: { token: activationToken.token, activationCode: activationCode }, // Replace with actual token generation logic
-      accessToken, // Return the access token
+      activationToken: { token: activationToken.token, activationCode: activationCode },
+      accessToken,
       user: createdUser,
     };
   }
@@ -114,7 +114,7 @@ export class UsersService {
 
     const { email } = decoded.user;
 
-    // Find the existing user
+
     const user = await this.prisma.user.findUnique({
       where: { email }
     });
@@ -123,13 +123,13 @@ export class UsersService {
       throw new BadRequestException('کاربر یافت نشد');
     }
 
-    // Update user's activation status
+   
     const updatedUser = await this.prisma.user.update({
       where: { email },
       data: { isActivated: true }
     });
 
-    // Generate tokens
+    
     const tokenSender = new TokenSender(this.configService, this.jwtService);
     const tokens = tokenSender.sendToken(updatedUser);
 
