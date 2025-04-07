@@ -24,6 +24,7 @@
   "dependencies": {
     "@mantine/core": "^7.16.3",
     "@mantine/hooks": "^7.16.3",
+    "cloudinary": "^2.6.0",
     "js-cookie": "^3.0.5"
   }
 }
