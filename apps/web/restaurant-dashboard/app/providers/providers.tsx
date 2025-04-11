@@ -3,6 +3,8 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import Sidebar from "@/shared/components/Sidebar";
 import { useEffect, useState } from 'react';
+import { ApolloProvider } from '@apollo/client';
+import { client } from '@/lib/apollo-client';
 
 const theme = createTheme({
   respectReducedMotion: false,
@@ -25,13 +27,15 @@ export default function LayoutProvider({
   }
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-8" suppressHydrationWarning>
-          {children}
-        </main>
-      </div>
-    </MantineProvider>
+    <ApolloProvider client={client}>
+      <MantineProvider theme={theme} defaultColorScheme="dark">
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 p-8" suppressHydrationWarning>
+            {children}
+          </main>
+        </div>
+      </MantineProvider>
+    </ApolloProvider>
   );
 }

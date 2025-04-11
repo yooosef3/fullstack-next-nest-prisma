@@ -25,6 +25,8 @@ import { PrismaService } from "../../../prisma/Prisma.service";
       autoSchemaFile: {
         federation: 2,
       },
+      sortSchema: true,
+      playground: true,
     }),
     EmailModule,
     CloudinaryModule

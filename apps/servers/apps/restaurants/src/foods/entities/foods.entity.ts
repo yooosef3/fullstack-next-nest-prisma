@@ -21,7 +21,7 @@ export class Food {
     @Field()
     category: string;
 
-    @Field()
+    @Field(() => [String])
     images: string[];
 
     @Field()

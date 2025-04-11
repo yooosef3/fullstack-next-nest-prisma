@@ -7,10 +7,15 @@ import { IntrospectAndCompose } from '@apollo/gateway';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloGatewayDriverConfig>({
-      driver:ApolloGatewayDriver,
-      gateway:{
+      driver: ApolloGatewayDriver,
+      gateway: {
         supergraphSdl: new IntrospectAndCompose({
-          subgraphs: []
+          subgraphs: [
+            {
+              name: 'restaurant',
+              url: 'http://localhost:3001/graphql'
+            }
+          ]
         })
       }
     })

@@ -1,11 +1,11 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsArray, ArrayNotEmpty } from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, IsArray, ArrayNotEmpty, IsOptional } from "class-validator";
 
 @InputType()
 export class CreateFoodDto {
     @Field()
     @IsNotEmpty({ message: "وارد کردن نام غدا ضروری است" })
-    @IsString({ message: "نام کاربری باید رشته باشد" })
+    @IsString({ message: "نام باید رشته باشد" })
     name: string;
 
     @Field()
@@ -15,21 +15,21 @@ export class CreateFoodDto {
 
     @Field()
     @IsNotEmpty({ message: "وارد کردن قیمت غدا ضروری است" })
+    @IsNumber()
     price: number;
 
-    @Field()
-    @IsNotEmpty({ message: "وارد کردن قیمت تخمینی غدا ضروری است" })
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsNumber()
     estimatedPrice?: number;
 
-    
     @Field()
     @IsNotEmpty({ message: "وارد کردن دسته غدا ضروری است" })
     @IsString({ message: "دسته غدا باید رشته باشد" })
     category: string;
 
     @Field(() => [String])
-    @IsArray({message:"تصاویر غذاها باید آرایه باشد"})
-    @ArrayNotEmpty({message:"آرایه تصاویر نباید خالی باشد"})
-    images: string[]
-
+    @IsArray({ message: "تصاویر غذاها باید آرایه باشد" })
+    @ArrayNotEmpty({ message: "آرایه تصاویر نباید خالی باشد" })
+    images: string[];
 }

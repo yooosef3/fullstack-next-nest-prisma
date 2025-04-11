@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Group, Paper, Stack, TextInput, Textarea, Text, SimpleGrid, Image } from "@mantine/core";
 import { useState, useRef } from "react";
 import { Icons } from "@/utils/icon";
+import { CREATE_FOOD } from "@/graphql/actions/create.food";
+import { useMutation } from "@apollo/client";
 
 const formSchema = z.object({
   name: z.string().min(2, "نام غذا باید حداقل 2 کاراکتر باشد"),
@@ -20,7 +22,7 @@ export default function CreateFoodForm() {
   const [filePreview, setFilePreview] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [createFoodMutation] = useMutation(CREATE_FOOD);
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
@@ -68,9 +70,27 @@ export default function CreateFoodForm() {
     setFilePreview(filePreview.filter((_, i) => i !== index));
   };
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Form Data:', data);
-    console.log('Images:', files);
+  const onSubmit = async (data: FormValues) => {
+    if (filePreview.length === 0) {
+      alert("لطفا حداقل یک تصویر انتخاب کنید");
+      return;
+    }
+
+    await createFoodMutation({
+      variables: {
+        createFoodDto: {
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          price: parseFloat(data.price),
+          images: filePreview,
+        },
+      },
+    }).then((res) => {
+      // toast.success("Food uploaded successfully!");
+      // reset();
+      // redirect("/foods");
+    });
   };
 
   return (

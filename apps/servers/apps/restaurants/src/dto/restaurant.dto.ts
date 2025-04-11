@@ -4,19 +4,19 @@ import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 @InputType()
 export class RegisterDto {
     @Field()
-    @IsNotEmpty({ message: "وارد کردن نام کاربری ضروری است" })
-    @IsString({ message: "نام کاربری باید رشته باشد" })
+    @IsNotEmpty({ message: "وارد کردن نام ضروری است" })
+    @IsString({ message: "نام باید رشته باشد" })
     name: string;
 
     @Field()
-    @IsNotEmpty({ message: "وارد کردن رمز عبور ضروری است" })
-    @MinLength(8, { message: "رمز عبور باید حداقل 8 کاراکتر باشد" })
-    password: string;
+    @IsNotEmpty({ message: "وارد کردن ایمیل ضروری است" })
+    @IsEmail({}, { message: "ایمیل معتبر نیست" })
+    email: string;
 
     @Field()
-    @IsNotEmpty({ message: "وارد کردن ایمیل ضروری است" })
-    @IsEmail({}, { message: "ایمیل وارد شده نامعتبر است" })
-    email: string;
+    @IsNotEmpty({ message: "وارد کردن رمز عبور ضروری است" })
+    @MinLength(6, { message: "رمز عبور باید حداقل 6 کاراکتر باشد" })
+    password: string;
 
     @Field()
     @IsNotEmpty({ message: "وارد کردن موبایل ضروری است" })
@@ -25,13 +25,9 @@ export class RegisterDto {
 
 @InputType()
 export class ActivationDto {
-  @Field()
-  @IsNotEmpty({ message: 'توکن فعالسازی ضروری است' })
-  activationToken: string;
-
-  @Field()
-  @IsNotEmpty({ message: 'کد فعالسازی ضروری است' })
-  activationCode: string;
+    @Field()
+    @IsNotEmpty({ message: "وارد کردن کد فعال سازی ضروری است" })
+    activationToken: string;
 }
 
 @InputType()
