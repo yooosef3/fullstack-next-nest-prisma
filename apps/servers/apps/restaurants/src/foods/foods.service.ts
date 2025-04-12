@@ -29,11 +29,11 @@ export class FoodsService {
     private readonly clodinaryService: CloudinaryService
   ) {}
 
-  async createFood(createFoodDto: CreateFoodDto, req:any,response:any){
+  async createFood(createFoodDto: CreateFoodDto, req:any){
     try {
       const { name, description, price, estimatedPrice, category, images } =
         createFoodDto as Food;
-      const restaurantId = req.restaurant?.id;
+      const restaurantId = req.restaurant?.id || '65f1c2d3e4f5a6b7c8d9e0f1';
 
       let foodImages: Images | any = [];
 

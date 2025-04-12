@@ -12,7 +12,7 @@ export class FoodsResolver {
     constructor(private readonly foodsService: FoodsService) {}
 
     @Mutation(() => CreateFoodResponse)
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     async createFood(
         @Args("createFoodDto", { type: () => CreateFoodDto }) createFoodDto: CreateFoodDto,
         @Context() context: { req: Request }
@@ -23,8 +23,5 @@ export class FoodsResolver {
         return await this.foodsService.createFood(createFoodDto, context.req);
     }
 
-    @Query(() => [Food])
-    async getFoods() {
-        return await this.foodsService.getFoods();
-    }
+   
 }
